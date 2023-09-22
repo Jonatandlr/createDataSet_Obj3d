@@ -10,7 +10,7 @@ import os
 
 def crearMesh(filenameMesh: str, filenameTexture: str):
     # read the object to transform it into mesh
-    mesh = open3d.io.read_triangle_mesh(filenameMesh)
+    mesh = open3d.io.read_triangle_mesh(filenameMesh,True,True)
 
     #get the center of the object in order to be able to rotate it on its axis  
     bbox = mesh.get_axis_aligned_bounding_box()
@@ -28,6 +28,8 @@ def crearMesh(filenameMesh: str, filenameTexture: str):
     random_unit_vector = random_vector / np.linalg.norm(random_vector)
     R = open3d.geometry.get_rotation_matrix_from_axis_angle(random_unit_vector)
     mesh.rotate(R,center)
+    meshCenter=mesh.get_center()
+    mesh.translate(-meshCenter)
 
     # load texture 
     mesh = open3d.t.geometry.TriangleMesh.from_legacy(mesh) 
@@ -71,25 +73,30 @@ def crearVentana(mesh, name, output):
 #meshes Path
 meshes=[
     {
-        "mesh": "Objects/cocaFotosMalas/cocaColaPhotoBad.glb",
-        "texture": "Objects/cocaFotosMalas/texture.jpg",
+        "mesh": "Objects/bananaLidar/banana1LIDAR.glb",
+        "texture": "Objects/bananaLidar/texture.jpg",
+        "output": "imagesObjects/banana/",
+        "name": "banana"
+    },
+    {
+        "mesh": "Objects/cocaLidar/cocaColaLIDAR.glb",
+        "texture": "Objects/cocaLidar/texture.jpg",
         "output": "imagesObjects/coca/",
-        "name": "CocaCola"
-    }
+        "name": "cocaCola"
+    },
 ]
 mesh_array = []
-
 #create meshes 
 for mesh in meshes:
-    for i in range(10):#the for is the amount of meshes (photos you will take)
+    for i in range(100):#the for is the amount of meshes (photos you will take)
         mesh_array.append(crearMesh(mesh["mesh"], mesh["texture"]))
 
 # start gui
 open3d.visualization.gui.Application.instance.initialize()
 
 for i in range(len(mesh_array)):#here you create the photos with the windows
-    print("creating " + meshes[i//10]["name"] +"_"+ str(i))
-    crearVentana(mesh_array[i], meshes[i//10]["name"] +"_"+ str(i), meshes[i//10]["output"]+ "_"+str(i) + ".png")
+    print("creating " + meshes[i//100]["name"])
+    crearVentana(mesh_array[i], meshes[i//100]["name"] +"_"+ str(i), meshes[i//100]["output"]+ meshes[i//100]["name"]+"_"+str(i) + ".png")
 
 
 
